@@ -20,11 +20,21 @@ const Table = () => {
     useEffect(() => {
         const db = getFirestore();
         const querySnapshot = collection(db, "registros");
+        const array = [];
+        function compararPorSedeYTurno(a, b) {
+            const comparacionSede = a.sede.localeCompare(b.sede);
+            if (comparacionSede !== 0) {
+                return comparacionSede;
+            }
+            return a.turno.localeCompare(b.turno);
+        }
         getDocs(querySnapshot).then((response) => {
             const data = response.docs.map((doc) => {
                 return { id: doc.id, ...doc.data() };
             });
-            setRegistros(data);
+            array.push(...data);
+            array.sort(compararPorSedeYTurno);
+            setRegistros(array);
         });
     }, []);
 
@@ -41,12 +51,12 @@ const Table = () => {
             </thead>
             <tbody>
                 {registros.map((registro) => (
-                    <tr key={registro.id}>
+                    <tr>
                         <td>{registro.nombre}</td>
                         <td>{registro.carrera}</td>
                         <td>{registro.turno}</td>
                         <td>{registro.sede}</td>
-                        <td>{registro.celular ? registro.celular : "N/A"}</td>
+                        <td>{registro.celular ? registro.celular : "-"}</td>
                     </tr>
                 ))}
             </tbody>
